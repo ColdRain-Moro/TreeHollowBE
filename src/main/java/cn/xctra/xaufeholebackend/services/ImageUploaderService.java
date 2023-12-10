@@ -16,7 +16,7 @@ public class ImageUploaderService {
 
     private final OkHttpClient client;
     private final Gson gson;
-    @Value("${xaufe-hole.image-uploader.token}")
+    @Value("${treehollow.image-uploader.token}")
     private String token;
 
     @Autowired

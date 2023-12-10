@@ -4,10 +4,12 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.codec.Base64Decoder;
 import cn.hutool.crypto.digest.BCrypt;
+import cn.xctra.xaufeholebackend.database.dto.ChsiAuthDto;
 import cn.xctra.xaufeholebackend.database.dto.EmailAuthRequestDto;
 import cn.xctra.xaufeholebackend.database.entities.UserEntity;
 import cn.xctra.xaufeholebackend.database.services.UserService;
 import cn.xctra.xaufeholebackend.model.WebVpnAvailableModel;
+import cn.xctra.xaufeholebackend.services.ChsiAuthService;
 import cn.xctra.xaufeholebackend.services.MailService;
 import cn.xctra.xaufeholebackend.services.RegistrationService;
 import cn.xctra.xaufeholebackend.services.WebVpnService;
@@ -27,6 +29,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth/")
@@ -42,8 +45,17 @@ public class AuthController {
 
     private final RegistrationService registrationService;
 
+    private final ChsiAuthService chsiAuthService;
+
     @Autowired
-    public AuthController(OkHttpClient okHttpClient, WebVpnService webVpnService, WebVpnController webVpnController, UserService userService, @Qualifier("xmlMapper") ObjectMapper xmlMapper, MailService mailService, RegistrationService registrationService) {
+    public AuthController(OkHttpClient okHttpClient,
+                          WebVpnService webVpnService,
+                          WebVpnController webVpnController,
+                          UserService userService,
+                          @Qualifier("xmlMapper") ObjectMapper xmlMapper,
+                          MailService mailService,
+                          RegistrationService registrationService,
+                          ChsiAuthService chsiAuthService) {
         this.okHttpClient = okHttpClient;
         this.webVpnService = webVpnService;
         this.webVpnController = webVpnController;
@@ -51,6 +63,7 @@ public class AuthController {
         this.xmlMapper = xmlMapper;
         this.mailService = mailService;
         this.registrationService = registrationService;
+        this.chsiAuthService = chsiAuthService;
     }
 
     @GetMapping("casAuth")
@@ -123,9 +136,9 @@ public class AuthController {
     @PostMapping("emailAuth")
     public ResponseEntity<String> emailAuth(@RequestBody EmailAuthRequestDto body,
                                             HttpServletRequest httpServletRequest) throws IOException {
-//        if (!body.getUsername().endsWith("@xaufe.edu.cn")) {
-//            return ResponseEntity.badRequest().body("账号不符合格式");
-//        }
+        if (!body.getUsername().endsWith("@stu.cqupt.edu.cn")) {
+            return ResponseEntity.badRequest().body("账号不符合格式");
+        }
 
         if (body.isRegisterMode()) {
 
@@ -140,7 +153,7 @@ public class AuthController {
             }
 
             if (body.getRegistrationCode() == null) {
-                mailService.sendMail(body.getUsername(), "About your registration in XAUFEHole", "Your registration code is " + registrationService.requireRegistrationCode(body.getUsername()));
+                mailService.sendMail(body.getUsername(), "About your registration in CQUPTHole", "Your registration code is " + registrationService.requireRegistrationCode(body.getUsername()));
                 return ResponseEntity.accepted().build();
             }
 
@@ -169,6 +182,22 @@ public class AuthController {
 
         StpUtil.login(body.getUsername().hashCode());
 
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("chsiAuth")
+    public ResponseEntity<String> chsiAuth(@RequestBody ChsiAuthDto body,
+                                           HttpServletRequest httpServletRequest) {
+        if (body.isRegisterMode() && !HappyCaptcha.verification(httpServletRequest, body.getCaptcha(), true)) {
+            return ResponseEntity.badRequest().body("验证码错误");
+        }
+        Optional<String> errorOpt = body.isRegisterMode()
+                ? chsiAuthService.register(body)
+                : chsiAuthService.login(body);
+        if (errorOpt.isPresent()) {
+            return ResponseEntity.badRequest().body(errorOpt.get());
+        }
+        StpUtil.login(body.getStuId().hashCode());
         return ResponseEntity.ok().build();
     }
 

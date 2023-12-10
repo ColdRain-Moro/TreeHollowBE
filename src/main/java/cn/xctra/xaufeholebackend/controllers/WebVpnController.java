@@ -19,7 +19,7 @@ import java.io.IOException;
 @RequestMapping("/webvpn/")
 public class WebVpnController {
 
-    @Value("${xaufe-hole.webvpn.backend-api-hash}")
+    @Value("${treehollow.webvpn.backend-api-hash}")
     private String webVpnBackendAPIHash;
 
     private final OkHttpClient okHttpClient;

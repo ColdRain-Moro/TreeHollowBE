@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  # backend
+  be:
+    image: arcticrain/cqupt-treehollow:latest
+    container_name: treehollow-be
+    environment:
+      # redis
+      - SPRING_REDIS_HOST=localhost
+      - SPRING_REDIS_PASSWORD=123456
+      # mysql
+      - SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/treehollow?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_PASSWORD=123456
+      # email
+      - SPRING_MAIL_USERNAME=treehollow@qq.com
+      - SPRING_MAIL_PASSWORD=xxxxx
+      - TREEHOLLOW_IMAGE_UPLOADER_TOKEN=xxxxx
+      # log
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB=DEBUG
+    expose:
+      - "5000"
+    ports:
+      - "5005:5005"
+    restart: always
+    networks:
+      - "net"
+  fe:
+    image: arcticrain/treehollow-fe:latest
+    container_name: treehollow-fe
+    ports:
+      - "80:80"
+    restart: always
+    networks:
+      - "net"
+networks:
+  net:

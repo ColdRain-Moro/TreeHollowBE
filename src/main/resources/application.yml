@@ -13,10 +13,14 @@ server:
     uri-encoding: "UTF-8"
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 300MB
+      max-request-size: 350MB
   datasource:
     driver-class-name: "com.mysql.cj.jdbc.Driver"
-    url: "jdbc:mysql://localhost:3306/hole_xctra_temp_?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai"
-    username: "hole_xctra_temp_"
+    url: "jdbc:mysql://localhost:3306/treehollow?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai"
+    username: "root"
     password: ""
     hikari:
       connection-init-sql: "set names utf8mb4"
@@ -25,7 +29,7 @@ spring:
   cache:
     redis:
       use-key-prefix: true
-      key-prefix: "xaufe_hole:"
+      key-prefix: "treehollow:"
   redis:
     database: 0
     host: "localhost"
@@ -38,9 +42,9 @@ spring:
     converters:
       preferred-json-mapper: "gson"
   mail:
-    host: "smtp.ym.163.com"
-    port: "994"
-    username: "noreply@xctc.club"
+    host: "smtp.qq.com"
+    port: 465
+    username: ""
     password: ""
     protocol: "smtp"
     properties:
@@ -69,9 +73,8 @@ sa-token:
   # 是否输出操作日志
   is-log: false
 
-xaufe-hole:
+treehollow:
   webvpn:
     backend-api-hash: "77726476706e69737468656265737421f8f84d9969286b446c09c7b89d58337b9f34d4724609fc137034799109"
   image-uploader:
     token: ""
-
