@@ -10,9 +10,7 @@ import cn.xctra.xaufeholebackend.database.entities.UserEntity;
 import cn.xctra.xaufeholebackend.database.repositories.PostRepository;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -37,6 +35,20 @@ public class PostService {
                 .sorted(Comparator.comparingLong(PostEntity::getId).reversed())
                 .limit(2)
                 .map(it -> buildPostPreview(it, isLogin, userId))
+                .collect(Collectors.toList());
+    }
+
+    public List<PostPreviewDto> getStarPosts(long uid, Pageable pageable) {
+        return postRepository.findByStarredUsersId(uid, pageable)
+                .stream()
+                .map(it -> buildPostPreview(it, true, uid))
+                .collect(Collectors.toList());
+    }
+
+    public List<PostPreviewDto> userPosts(long uid, Pageable pageable) {
+        return postRepository.findByPosterId(uid, pageable)
+                .stream()
+                .map(it -> buildPostPreview(it, true, uid))
                 .collect(Collectors.toList());
     }
 

@@ -9,6 +9,8 @@ import cn.xctra.xaufeholebackend.database.entities.PostEntity;
 import cn.xctra.xaufeholebackend.database.services.PostService;
 import cn.xctra.xaufeholebackend.database.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +40,20 @@ public class PostController {
     public List<PostPreviewDto> list(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
                                      @RequestParam(value = "size", required = false, defaultValue = "20") int size) {
         return postService.list(page, size, StpUtil.isLogin(), StpUtil.isLogin() ? StpUtil.getLoginIdAsLong() : 0);
+    }
+
+    @SaCheckLogin
+    @GetMapping("star/list")
+    public List<PostPreviewDto> starList(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
+                         @RequestParam(value = "size", required = false, defaultValue = "20") int size) {
+        return postService.getStarPosts(StpUtil.getLoginIdAsLong(), PageRequest.of(page, size, Sort.Direction.DESC, "id"));
+    }
+
+    @SaCheckLogin
+    @GetMapping("userPosts")
+    public List<PostPreviewDto> userPosts(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
+                                          @RequestParam(value = "size", required = false, defaultValue = "20") int size) {
+        return postService.userPosts(StpUtil.getLoginIdAsLong(), PageRequest.of(page, size, Sort.Direction.DESC, "id"));
     }
 
     @GetMapping("/view/{id}")
